@@ -1,7 +1,7 @@
 NodebotUI
 ==========
 
-A client/server framework for rapid prototyping of browser controlled robotic systems. The goal is a complete Bootstrap-like experience for assembling HTML that talks to Johnny-Five via socket.io. The user should only have to edit HTML to create a basic interface.
+A client/server framework for rapid prototyping of browser controlled robotic systems. The goal is a complete Bootstrap-like experience for assembling HTML that talks to Johnny-Five via socket.io. The user should only have to edit HTML to wire-up a basic interface.
 
 This is just a bare-bones POC right now. If you'd like to try it out, follow these steps:
 
