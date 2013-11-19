@@ -1,15 +1,15 @@
 NodebotUI
 ==========
 
-A client/server framework for rapid prototyping of browser controlled robotic systems.
+A client/server framework for rapid prototyping of browser controlled robotic systems. The goal is a complete Bootstrap-like experience for assembling HTML that talks to Johnny-Five via socket.io. The user should only have to edit HTML to create a basic interface.
 
-Just a POC right now. If you'd like to try it out, follow these steps:
+This is just a bare-bones POC right now. If you'd like to try it out, follow these steps:
 
 * Grab a copy of this repo
 * In the NodebotUI folder npm install
 * Wire up an arduino with an LED on pin 13
 * In the examples folder run node demoServer
-* Open led.html in your browser (you can open from filesystem, no server needed for that)
+* Open led.html in your browser (you can open from the filesystem, no server needed for that)
 
 ##Notes
 
@@ -20,7 +20,7 @@ Just a POC right now. If you'd like to try it out, follow these steps:
 
 ##Goals of this POC
 
-* Really I just want to run the high level structure of nodebotui.js and nodebotui-client.js by some developers who are smarter than me
+* Really I just want to run the high level structure of nodebotui.js and nodebotui-client.js by some developers who are smarter than me.
 * In the console take a look at the global nodebotui object. This is what we pass to the server once the page has loaded.
 
 ##To Do
