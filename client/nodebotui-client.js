@@ -1,7 +1,6 @@
 var nodebotui = (function () {
 
-  var socket = io.connect(nodebotuiServer)
-    , boards;
+  var socket, boards;
   
   /**
    * Board
@@ -186,16 +185,44 @@ var nodebotui = (function () {
     }
   }
   
-  // This is where we listen for events from the server
-  socket.on('board ready', function( opts ) {
-    nodebotui[opts.id]._ready = true;
-    nodebotui[opts.id].initialize();
-    console.log('board ready');
-  });
+  /**
+   * This bit loads the socket.io client script asyncrhonously
+   * and then fires our _getBoards function
+   **/
   
-  //Initialize and assign our boards object to nodebotui global
-  boards =  _getBoards();
-  return boards;
+  // Find the src for this script so we can request socket.io from the same location
+  var scripts = document.getElementsByTagName('script'), len = scripts.length, re = /nodebotui-client\.js$/, src, nbuiScriptSrc;
+  while (len--) {
+    src = scripts[len].src;
+    if (src && src.match(re)) {
+      nbuiScriptSrc = src;
+      break;
+    }
+  }
+  
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.onload = function(){
+
+      socket = io.connect(nbuiScriptSrc.replace('/nodebotui/nodebotui-client.js', ''));
+
+      //Initialize and assign our boards object to nodebotui global
+      boards =  _getBoards();
+      
+      // This is where we listen for events from the server
+      socket.on('board ready', function( opts ) {
+        boards[opts.id]._ready = true;
+        boards[opts.id].initialize();
+        console.log('board ready');
+      });
+      
+      return boards;
+  };
+
+  // Insert script element for socket.io
+  script.src = nbuiScriptSrc.replace('nodebotui/nodebotui-client.js', 'socket.io/socket.io.js');
+  document.getElementsByTagName('head')[0].appendChild(script);
   
   /**
    * The following is, ahem, borrowed code

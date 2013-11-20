@@ -34,7 +34,8 @@
   "dependencies": {
     "socket.io": ">=0.9.16",
     "johnny-five": ">=0.7.4",
-    "underscore": ">=1.5.2"
+    "underscore": ">=1.5.2",
+    "send": ">=0.1.4"
   },
   "keywords": []
 }
