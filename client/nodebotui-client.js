@@ -41,8 +41,8 @@ var nodebotui = (function () {
    */
   Board.prototype.initialize = function() {  
     _each(this, function(device, key) {
-      if (key.substring(0,1) !== '_' && device.initialize) {
-        device.initialize();
+      if (key.substring(0,1) !== '_' && device._initialize) {
+        device._initialize();
       }
     });
   }
@@ -112,6 +112,7 @@ var nodebotui = (function () {
    *
    * min - Minimum value for the device type
    * max - Maximum value for the device type
+   * initial - Initial value for the device type
    * _methods - A list of deviceMethods names that apply to the device type
    */ 
   var deviceTypes = {
@@ -121,7 +122,10 @@ var nodebotui = (function () {
       _methods: ['on', 'off'] //, 'toggle', 'brightness', 'pulse', 'fade', 'fadeIn', 'fadeOut', 'strobe', 'stop']
     },
     Servo: {
-      _methods: ['move']
+      min: 0,
+      max: 180,
+      initial: 90,
+      _methods: ['move'] //, 'center', 'sweep'
     }
   }
   
@@ -132,15 +136,15 @@ var nodebotui = (function () {
    var deviceMethods = {
     on: function() {
       socket.emit('call', { "board": this._board, "device": this._element, "method": "on" });
-      this.update(true);
+      this._update(true);
     },
     off: function() {
       socket.emit('call', { "board": this._board, "device": this._element, "method": "off" });
-      this.update(false);
+      this._update(false);
     },
     move: function() {
       socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: Number(document.getElementById(this._element).value) });
-      this.update(document.getElementById(this._element).value);
+      this._update(document.getElementById(this._element).value);
     }
   }
   
@@ -157,7 +161,7 @@ var nodebotui = (function () {
           el.checked ? input.on() : input.off(); 
         });
       },
-      update: function(status) {
+      _update: function(status) {
         document.getElementById(this._element).checked = status;
       }
     },
@@ -167,8 +171,17 @@ var nodebotui = (function () {
           input.move()
         });
       },
-      update: function(status) {
+      _update: function(status) {
         document.getElementById(this._element).value = status;
+      },
+      _initialize: function() {
+        var el = document.getElementById(this._element);
+        
+        this.max = el.getAttribute('max') || this.max;
+        el.setAttribute('max', this.max);
+        
+        this.min = el.getAttribute('min') || this.min;
+        el.setAttribute('min', this.min);
       }
     }
   }
@@ -176,7 +189,7 @@ var nodebotui = (function () {
   // This is where we listen for events from the server
   socket.on('board ready', function( opts ) {
     nodebotui[opts.id]._ready = true;
-    //nodebotui[opts.id].initialize();
+    nodebotui[opts.id].initialize();
     console.log('board ready');
   });
   
