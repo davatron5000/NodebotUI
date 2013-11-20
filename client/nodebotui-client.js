@@ -119,6 +119,9 @@ var nodebotui = (function () {
       min: 0, 
       max: 255,
       _methods: ['on', 'off'] //, 'toggle', 'brightness', 'pulse', 'fade', 'fadeIn', 'fadeOut', 'strobe', 'stop']
+    },
+    Servo: {
+      _methods: ['move']
     }
   }
   
@@ -134,6 +137,10 @@ var nodebotui = (function () {
     off: function() {
       socket.emit('call', { "board": this._board, "device": this._element, "method": "off" });
       this.update(false);
+    },
+    move: function() {
+      socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: Number(document.getElementById(this._element).value) });
+      this.update(document.getElementById(this._element).value);
     }
   }
   
@@ -152,6 +159,16 @@ var nodebotui = (function () {
       },
       update: function(status) {
         document.getElementById(this._element).checked = status;
+      }
+    },
+    range: {
+      _listen: function(el, input) {
+        el.addEventListener('change', function() { 
+          input.move()
+        });
+      },
+      update: function(status) {
+        document.getElementById(this._element).value = status;
       }
     }
   }
