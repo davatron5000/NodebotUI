@@ -203,11 +203,12 @@ var nodebotui = (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
   script.async = true;
+
   script.onload = function(){
 
       socket = io.connect(nbuiScriptSrc.replace('/nodebotui/nodebotui-client.js', ''));
 
-      //Initialize and assign our boards object to nodebotui global
+      //Initialize boards
       boards =  _getBoards();
       
       // This is where we listen for events from the server
@@ -217,6 +218,7 @@ var nodebotui = (function () {
         console.log('board ready');
       });
       
+      // assign our boards object to nodebotui global
       return boards;
   };
 
