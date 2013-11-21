@@ -17,6 +17,9 @@ This is just a bare-bones POC right now. If you'd like to try it out, follow the
 * I've only added support for LED's and servos on a single board, and only the on(), off() and move() methods at that. Additional device types and methods should be pretty easy.
 * Make sure you wait for board ready before you click the checkbox or move the slider.
 * There really isn't much to the server code. The heavy lifting is all in nodebotui-client.
+* There is also a command line interface for the browser. In led.html try this at the console:
+
+    nodebotui.sampleBoard.myled.off();
 
 ##Goals of this POC
 
