@@ -1,8 +1,9 @@
 /**
- * HEY YOU, DON'T EDIT THIS FILE!
- * It is assembled by a grunt script. You should be editing the files in the src
+ * HEY, DON'T EDIT THIS FILE!
+ * It is assembled by a grunt script. You should be edit the files in the src
  * folder and then run grunt in the nodebotui root
  **/
+ 
 
 var nodebotui = (function () {
 
@@ -32,12 +33,21 @@ var nodebotui = (function () {
    * associate them with the board
    */
   Board.prototype.getInputs = function() {  
+    
     var inputs = document.getElementById(this._element).getElementsByTagName('input');
     for (i = 0; i < inputs.length; i++) {
       if (inputs[i].hasAttribute('data-device-type')) {
         this[inputs[i].id] = new Input({'element': inputs[i], 'board': this._element });
       }
-    }  
+    }
+    
+    var fieldsets = document.getElementById(this._element).getElementsByTagName('fieldset');
+    for (i = 0; i < fieldsets.length; i++) {
+      if (fieldsets[i].hasAttribute('data-device-type')) {
+        this['_'+fieldsets[i].id] = new BrowserControl({'element': fieldsets[i], 'board': this._element });
+      }
+    }
+      
   }
   
   /**
@@ -51,7 +61,7 @@ var nodebotui = (function () {
       }
     });
   }
-  
+    
   /**
    * Input
    * @constructor
@@ -89,7 +99,35 @@ var nodebotui = (function () {
     delete this._methods;
     
   }
-
+  
+  /**
+   * Browser Control
+   * @constructor
+   *
+   * @param {Object} opts
+   */
+  var BrowserControl = function( opts ) {
+    
+    if ( !(this instanceof BrowserControl) ) {
+      return new BrowserControl( opts );
+    }
+    
+    // Cache the element and set common attributes
+    var el = document.getElementById(opts.element.id);
+    this._board = opts.board;
+    this._element = el.id;
+    
+    // Extend this object with the browser control properties and methods
+    this.dataDeviceType = el.getAttribute('data-device-type');
+    _extend(this, browserControls[this.dataDeviceType]);
+    
+    // Initialize object
+    this._initialize(el, this);
+    
+    // Bind event listeners
+    this._listen(el, this);
+  
+  }
   
   /**
    * These are all the device types defined in Johnny-Five. These
@@ -113,29 +151,87 @@ var nodebotui = (function () {
       _methods: ['move'] //, 'center', 'sweep'
     }
   }
-  
+    
   /**
    * All the methods that are defined in Johnny-Five. These extend
    * our Input objects (not elements)
    */
    var deviceMethods = {
     on: function() {
-      socket.emit('call', { "board": this._board, "device": this._element, "method": "on" });
+      if (socket) {
+        socket.emit('call', { "board": this._board, "device": this._element, "method": "on" });
+      }
       this._update(true);
     },
     off: function() {
-      socket.emit('call', { "board": this._board, "device": this._element, "method": "off" });
+      if (socket) {
+        socket.emit('call', { "board": this._board, "device": this._element, "method": "off" });
+      }
       this._update(false);
     },
     move: function(value) {
       if (value === null) {
         value = Number(document.getElementById(this._element).value)
       }
-      socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: value });
+      if (socket) {
+        socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: value });
+      }
       this._update( value );
     }
   }
-  
+    
+  /**
+   * These are browser controls.
+   * Browser controls are groups of inputs working in concert
+   *
+   * _listen - A function that binds necessary event listeners to the <input> elements
+   */
+  var browserControls = {
+    
+    /**
+     * fieldset data-device-type="orientation"
+     *
+     * A group of two or three ranges
+     **/
+    Orientation: {
+      
+      /**
+       * On deviceorientation check to see if there are inputs for each of the three axes
+       * If so, move that range input
+       **/
+      _listen: function(el, browserControl) {
+        window.addEventListener('deviceorientation', function(event) {
+          _each(['alpha', 'beta', 'gamma'], function (prefix) {
+            if (browserControl[prefix+'Input']) {
+              boards[browserControl._board][browserControl[prefix+'Input']].move((event[prefix]+180)/2);
+            }
+          }, this);          
+        });
+      },
+      
+      _update: function(alpha, beta, gamma) {
+        //todo
+      },
+      
+      /**
+       * Bind each of the inputs associated with the browser control with
+       * the appropriate axis
+       **/
+       _initialize: function(el, browserControl) {
+        var inputs = document.getElementById(this._element).getElementsByTagName('input');
+        for (i = 0; i < inputs.length; i++) {
+          if (inputs[i].hasAttribute('data-axis')) {
+            _each(['alpha', 'beta', 'gamma'], function (prefix) {
+              if (inputs[i].getAttribute('data-axis') === prefix) {
+                this[prefix+'Input'] = inputs[i].id;
+              }
+            }, this);
+          }
+        }
+        
+      }
+    }
+  }  
   /**
    * These are all the HTML input types we recognize.
    * Inputs can be standalone or grouped to form a browser control.
@@ -186,7 +282,59 @@ var nodebotui = (function () {
       }
     }
   }
-  
+    
+  /**
+   * These are browser controls.
+   * Browser controls are groups of inputs working in concert
+   *
+   * _listen - A function that binds necessary event listeners to the <input> elements
+   */
+  var browserControls = {
+    
+    /**
+     * fieldset data-device-type="orientation"
+     *
+     * A group of two or three ranges
+     **/
+    Orientation: {
+      
+      /**
+       * On deviceorientation check to see if there are inputs for each of the three axes
+       * If so, move that range input
+       **/
+      _listen: function(el, browserControl) {
+        window.addEventListener('deviceorientation', function(event) {
+          _each(['alpha', 'beta', 'gamma'], function (prefix) {
+            if (browserControl[prefix+'Input']) {
+              boards[browserControl._board][browserControl[prefix+'Input']].move((event[prefix]+180)/2);
+            }
+          }, this);          
+        });
+      },
+      
+      _update: function(alpha, beta, gamma) {
+        //todo
+      },
+      
+      /**
+       * Bind each of the inputs associated with the browser control with
+       * the appropriate axis
+       **/
+       _initialize: function(el, browserControl) {
+        var inputs = document.getElementById(this._element).getElementsByTagName('input');
+        for (i = 0; i < inputs.length; i++) {
+          if (inputs[i].hasAttribute('data-axis')) {
+            _each(['alpha', 'beta', 'gamma'], function (prefix) {
+              if (inputs[i].getAttribute('data-axis') === prefix) {
+                this[prefix+'Input'] = inputs[i].id;
+              }
+            }, this);
+          }
+        }
+        
+      }
+    }
+  }  
   /**
    * The following is, ahem, borrowed code
    */
@@ -227,6 +375,7 @@ var nodebotui = (function () {
     for (var key in obj) if (hasOwnProperty.call(obj, key)) keys.push(key);
     return keys;
   };
+  
    
   /**
    * Loop through the forms in the web page. For each one that has a 
