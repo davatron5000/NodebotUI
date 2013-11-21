@@ -8,33 +8,37 @@ module.exports = function(grunt) {
 				options: {
   				patterns: [{ 
   					match: /\/\/ @include Board.js/g,
-  					replacement: '<%= grunt.file.read("./client/lib/Board.js") %>' 
+  					replacement: '<%= grunt.file.read("./client/src/Board.js") %>' 
   				},
   				{
     				match: /\/\/ @include Input.js/g,
-  					replacement: '<%= grunt.file.read("./client/lib/Input.js") %>'
+  					replacement: '<%= grunt.file.read("./client/src/Input.js") %>'
   				},
   				{
     				match: /\/\/ @include deviceTypes.js/g,
-  					replacement: '<%= grunt.file.read("./client/lib/deviceTypes.js") %>'
+  					replacement: '<%= grunt.file.read("./client/src/deviceTypes.js") %>'
   				},
   				{
     				match: /\/\/ @include deviceMethods.js/g,
-  					replacement: '<%= grunt.file.read("./client/lib/deviceMethods.js") %>'
+  					replacement: '<%= grunt.file.read("./client/src/deviceMethods.js") %>'
   				},
   				{
     				match: /\/\/ @include inputTypes.js/g,
-  					replacement: '<%= grunt.file.read("./client/lib/inputTypes.js") %>'
+  					replacement: '<%= grunt.file.read("./client/src/inputTypes.js") %>'
   				},
   				{
     				match: /\/\/ @include underscoreFunctions.js/g,
-  					replacement: '<%= grunt.file.read("./client/lib/underscoreFunctions.js") %>'
+  					replacement: '<%= grunt.file.read("./client/src/underscoreFunctions.js") %>'
+  				},
+  				{
+    				match: /\/\/ @include warning.txt/g,
+  					replacement: '<%= grunt.file.read("./client/src/warning.txt") %>'
   				}
   		  ],
   		  force: true
   		},
         files: [
-          {expand: true, flatten: true, src: ['./client/lib/nodebotui-client.js'], dest: './client'}
+          {expand: true, flatten: true, src: ['./client/src/nodebotui-client.js'], dest: './client'}
         ]
 			}
 		}
