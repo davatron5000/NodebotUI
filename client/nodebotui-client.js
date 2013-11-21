@@ -1,3 +1,9 @@
+/**
+ * HEY YOU, DON'T EDIT THIS FILE!
+ * It is assembled by a grunt script. You should be editing the files in the src
+ * folder and then run grunt in the nodebotui root
+ **/
+
 var nodebotui = (function () {
 
   var socket, boards;
@@ -122,8 +128,11 @@ var nodebotui = (function () {
       this._update(false);
     },
     move: function(value) {
-      socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: value || Number(document.getElementById(this._element).value) });
-      this._update( value || Number(document.getElementById(this._element).value) );
+      if (value === null) {
+        value = Number(document.getElementById(this._element).value)
+      }
+      socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: value });
+      this._update( value );
     }
   }
   
