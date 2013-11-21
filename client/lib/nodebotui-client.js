@@ -27,8 +27,6 @@ var nodebotui = (function () {
       if (forms[i].getAttribute('data-device-type') === 'board') {
         boards[forms[i].id] = new Board({ 'element': forms[i].id});
         
-        // tell the server to initialize our new board
-        socket.emit('new board', boards[forms[i].id] );
       }
     }
     
@@ -59,9 +57,11 @@ var nodebotui = (function () {
   script.onload = function(){
 
       socket = io.connect(nbuiScriptSrc.replace('/nodebotui/nodebotui-client.js', ''));
-
-      //Initialize boards
-      boards =  _getBoards();
+            
+      // tell the server to initialize our new boards
+      _each(boards, function( board, key) {
+        socket.emit('new board', board );
+      });
       
       // This is where we listen for events from the server
       socket.on('board ready', function( opts ) {
@@ -70,12 +70,16 @@ var nodebotui = (function () {
         console.log('board ready');
       });
       
-      // assign our boards object to nodebotui global
-      return boards;
   };
 
   // Insert script element for socket.io
   script.src = nbuiScriptSrc.replace('nodebotui/nodebotui-client.js', 'socket.io/socket.io.js');
   document.getElementsByTagName('head')[0].appendChild(script);
+  
+  //Initialize boards
+  boards =  _getBoards();
+
+  // assign our boards object to nodebotui global
+  return boards;
    
 })();
