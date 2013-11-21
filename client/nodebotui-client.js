@@ -110,7 +110,7 @@ var nodebotui = (function () {
   
   /**
    * All the methods that are defined in Johnny-Five. These extend
-   * our Input onjects (not elements)
+   * our Input objects (not elements)
    */
    var deviceMethods = {
     on: function() {
@@ -121,9 +121,9 @@ var nodebotui = (function () {
       socket.emit('call', { "board": this._board, "device": this._element, "method": "off" });
       this._update(false);
     },
-    move: function() {
-      socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: Number(document.getElementById(this._element).value) });
-      this._update(document.getElementById(this._element).value);
+    move: function(value) {
+      socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: value || Number(document.getElementById(this._element).value) });
+      this._update( value || Number(document.getElementById(this._element).value) );
     }
   }
   
@@ -134,6 +134,12 @@ var nodebotui = (function () {
    * _listen - A function that binds necessary event listeners to the <input> elements
    */
   var inputTypes = {
+    
+    /**
+     * input type="checkbox"
+     *
+     * Can be bound to an LED
+     **/
     checkbox: {
       _listen: function(el, input) {
         el.addEventListener('change', function() { 
@@ -144,7 +150,14 @@ var nodebotui = (function () {
         document.getElementById(this._element).checked = status;
       }
     },
-    range: {
+    
+    
+    /**
+     * input type="range"
+     *
+     * Can be bound to a servo
+     **/
+     range: {
       _listen: function(el, input) {
         el.addEventListener('change', function() { 
           input.move()
@@ -219,8 +232,6 @@ var nodebotui = (function () {
       if (forms[i].getAttribute('data-device-type') === 'board') {
         boards[forms[i].id] = new Board({ 'element': forms[i].id});
         
-        // tell the server to initialize our new board
-        socket.emit('new board', boards[forms[i].id] );
       }
     }
     
@@ -251,9 +262,11 @@ var nodebotui = (function () {
   script.onload = function(){
 
       socket = io.connect(nbuiScriptSrc.replace('/nodebotui/nodebotui-client.js', ''));
-
-      //Initialize boards
-      boards =  _getBoards();
+            
+      // tell the server to initialize our new boards
+      _each(boards, function( board, key) {
+        socket.emit('new board', board );
+      });
       
       // This is where we listen for events from the server
       socket.on('board ready', function( opts ) {
@@ -262,12 +275,16 @@ var nodebotui = (function () {
         console.log('board ready');
       });
       
-      // assign our boards object to nodebotui global
-      return boards;
   };
 
   // Insert script element for socket.io
   script.src = nbuiScriptSrc.replace('nodebotui/nodebotui-client.js', 'socket.io/socket.io.js');
   document.getElementsByTagName('head')[0].appendChild(script);
+  
+  //Initialize boards
+  boards =  _getBoards();
+
+  // assign our boards object to nodebotui global
+  return boards;
    
 })();
