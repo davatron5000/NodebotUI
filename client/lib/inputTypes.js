@@ -5,6 +5,12 @@
    * _listen - A function that binds necessary event listeners to the <input> elements
    */
   var inputTypes = {
+    
+    /**
+     * input type="checkbox"
+     *
+     * Can be bound to an LED
+     **/
     checkbox: {
       _listen: function(el, input) {
         el.addEventListener('change', function() { 
@@ -15,7 +21,14 @@
         document.getElementById(this._element).checked = status;
       }
     },
-    range: {
+    
+    
+    /**
+     * input type="range"
+     *
+     * Can be bound to a servo
+     **/
+     range: {
       _listen: function(el, input) {
         el.addEventListener('change', function() { 
           input.move()
