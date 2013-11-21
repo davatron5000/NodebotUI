@@ -19,3 +19,4 @@
       this._update( value );
     }
   }
+  

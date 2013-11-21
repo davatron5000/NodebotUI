@@ -4,16 +4,14 @@ var nodebotui = (function () {
 
   var socket, boards;
   
-  // @include Board.js
-  
-  // @include Input.js
-  
-  // @include deviceTypes.js
-  
-  // @include deviceMethods.js
-  
-  // @include inputTypes.js
-  
+  // @include Board.js  
+  // @include Input.js  
+  // @include BrowserControl.js  
+  // @include deviceTypes.js  
+  // @include deviceMethods.js  
+  // @include browserControls.js  
+  // @include inputTypes.js  
+  // @include browserControls.js  
   // @include underscoreFunctions.js
    
   /**
