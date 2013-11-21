@@ -25,6 +25,5 @@ This is just a bare-bones POC right now. If you'd like to try it out, follow the
 
 ##To Do
 
-* Just one script tag in the HTML. Combine the client side JS for socket.io and nodebotui-client.js into a single package or inject socket.io into the DOM.
 * Capture/queue calls from client that happen before the board is ready.
 * Initialize devices based on default values in HTML file (i.e. if the box is checked to begin with, make sure the LED is initially on)
