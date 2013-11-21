@@ -1,0 +1,5 @@
+/**
+ * HEY, DON'T EDIT THIS FILE!
+ * It is assembled by a grunt script. You should be edit the files in the src
+ * folder and then run grunt in the nodebotui root
+ **/

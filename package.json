@@ -1,0 +1,46 @@
+{
+  "name": "nodebotui",
+  "main": "lib/nodebotui",
+  "description": "A client/server framework for rapid prototyping of browser controlled robotic systems.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/davatron5000/nodebotui",
+  "author": {
+    "name": "Dave Rupert"
+  },
+  "contributors": [
+    {
+      "name": "Dave Rupert"
+    },
+    {
+      "name": "Donovan Buck",
+      "email": "<donovan@donovan.bz>"
+    }
+  ],
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/davatron5000/nodebotui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/davatron5000/nodebotui/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/davatron5000/nodebotui/blob/master/LICENSE"
+    }
+  ],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "socket.io": ">=0.9.16",
+    "johnny-five": ">=0.7.4",
+    "underscore": ">=1.5.2",
+    "send": ">=0.1.4"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-replace": "~0.5.1"
+  }
+}

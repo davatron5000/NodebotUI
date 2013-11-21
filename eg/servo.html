@@ -1,0 +1,18 @@
+<head>
+	<title>Servo Example</title>
+</head>
+
+<body>
+	
+	<!-- data-device-type="board" indicated that this form maps to a Johnny-Five board -->
+	<form id="sampleBoard" data-device-type="board">
+		
+		<label for="myServo">Move Servo</label>
+		<!-- data-device-type="Servo" and data-pin="3" are the important properties here -->
+		<input type="range" id="myservo" data-device-type="Servo" data-pin="3" />
+	
+	</form>
+	
+  <script src="http://localhost:3000/nodebotui/nodebotui-client.js"></script>
+  
+</body>

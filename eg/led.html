@@ -1,0 +1,18 @@
+<head>
+	<title>Led Example</title>
+</head>
+
+<body>
+	
+	<!-- data-device-type="board" indicated that this form maps to a Johnny-Five board -->
+	<form id="sampleBoard" data-device-type="board">
+		
+		<label for="myled">Toggle LED</label>
+		<!-- data-device-type="Led" and data-pin="13" are the important properties here -->
+		<input type="checkbox" id="myled" data-device-type="Led" data-pin="13" />
+	
+	</form>
+	
+	<script src="http://localhost:3000/nodebotui/nodebotui-client.js"></script>
+  
+</body>
