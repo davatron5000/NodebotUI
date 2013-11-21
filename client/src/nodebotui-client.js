@@ -1,3 +1,5 @@
+// @include warning.txt
+
 var nodebotui = (function () {
 
   var socket, boards;
