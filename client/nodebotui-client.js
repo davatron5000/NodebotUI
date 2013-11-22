@@ -194,8 +194,7 @@ var nodebotui = (function () {
      * A group of two or three ranges
      **/
     Orientation: {
-      
-      /**
+       /**
        * On deviceorientation check to see if there are inputs for each of the three axes
        * If so, move that range input
        **/
@@ -203,7 +202,10 @@ var nodebotui = (function () {
         window.addEventListener('deviceorientation', function(event) {
           _each(['alpha', 'beta', 'gamma'], function (prefix) {
             if (browserControl[prefix+'Input']) {
-              boards[browserControl._board][browserControl[prefix+'Input']].move((event[prefix]+180)/2);
+              var value = (event[prefix] + 90);
+              var thisInput = boards[browserControl._board][browserControl[prefix+'Input']];
+              if (prefix === 'beta') console.log(event[prefix], value);
+              boards[browserControl._board][browserControl[prefix+'Input']].move(value);
             }
           }, this);          
         });
@@ -297,8 +299,7 @@ var nodebotui = (function () {
      * A group of two or three ranges
      **/
     Orientation: {
-      
-      /**
+       /**
        * On deviceorientation check to see if there are inputs for each of the three axes
        * If so, move that range input
        **/
@@ -306,7 +307,10 @@ var nodebotui = (function () {
         window.addEventListener('deviceorientation', function(event) {
           _each(['alpha', 'beta', 'gamma'], function (prefix) {
             if (browserControl[prefix+'Input']) {
-              boards[browserControl._board][browserControl[prefix+'Input']].move((event[prefix]+180)/2);
+              var value = (event[prefix] + 90);
+              var thisInput = boards[browserControl._board][browserControl[prefix+'Input']];
+              if (prefix === 'beta') console.log(event[prefix], value);
+              boards[browserControl._board][browserControl[prefix+'Input']].move(value);
             }
           }, this);          
         });
