@@ -4,7 +4,6 @@
    *
    * min - Minimum value for the device type
    * max - Maximum value for the device type
-   * initial - Initial value for the device type
    * _methods - A list of deviceMethods names that apply to the device type
    */ 
   var deviceTypes = {
@@ -16,7 +15,6 @@
     Servo: {
       min: 0,
       max: 180,
-      initial: 90,
       _methods: ['move'] //, 'center', 'sweep'
     }
   }
