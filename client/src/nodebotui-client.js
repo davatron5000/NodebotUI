@@ -2,19 +2,18 @@
 
 var nodebotui = (function () {
 
-  var socket, boards;
+  var socket, boards, easing = {};
   
-  // @include Board.js
-  
-  // @include Input.js
-  
-  // @include deviceTypes.js
-  
-  // @include deviceMethods.js
-  
-  // @include inputTypes.js
-  
+  // @include Board.js  
+  // @include Input.js  
+  // @include BrowserControl.js  
+  // @include deviceTypes.js  
+  // @include deviceMethods.js  
+  // @include browserControls.js  
+  // @include inputTypes.js  
+  // @include browserControls.js  
   // @include underscoreFunctions.js
+  // @include easing.js
    
   /**
    * Loop through the forms in the web page. For each one that has a 
@@ -36,7 +35,7 @@ var nodebotui = (function () {
   }
   
   /**
-   * This bit loads the socket.io client script asynchronously
+   * This next part loads the socket.io client script asynchronously
    * and then fires our _getBoards function
    **/
   var script = document.createElement('script');

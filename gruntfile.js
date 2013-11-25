@@ -11,6 +11,10 @@ module.exports = function(grunt) {
   					replacement: '<%= grunt.file.read("./client/src/Board.js") %>' 
   				},
   				{
+    				match: /\/\/ @include BrowserControl.js/g,
+  					replacement: '<%= grunt.file.read("./client/src/BrowserControl.js") %>'
+  				},
+  				{
     				match: /\/\/ @include Input.js/g,
   					replacement: '<%= grunt.file.read("./client/src/Input.js") %>'
   				},
@@ -27,12 +31,20 @@ module.exports = function(grunt) {
   					replacement: '<%= grunt.file.read("./client/src/inputTypes.js") %>'
   				},
   				{
+    				match: /\/\/ @include browserControls.js/g,
+  					replacement: '<%= grunt.file.read("./client/src/browserControls.js") %>'
+  				},
+  				{
     				match: /\/\/ @include underscoreFunctions.js/g,
   					replacement: '<%= grunt.file.read("./client/src/underscoreFunctions.js") %>'
   				},
   				{
     				match: /\/\/ @include warning.txt/g,
   					replacement: '<%= grunt.file.read("./client/src/warning.txt") %>'
+  				},
+  				{
+    				match: /\/\/ @include easing.js/g,
+  					replacement: '<%= grunt.file.read("./client/src/easing.js") %>'
   				}
   		  ],
   		  force: true

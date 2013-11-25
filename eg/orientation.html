@@ -1,0 +1,26 @@
+<head>
+	<title>Orientation Example</title>
+</head>
+
+<body>
+	
+	<!-- data-device-type="board" indicated that this form maps to a Johnny-Five board -->
+	<form id="sampleBoard" data-device-type="board">
+	
+		<!-- data-device-type="Orientation" indicates that the inputs wihtin this fieldset comprise an Orientation browser control -->
+		<fieldset id="orienter" data-device-type="Orientation">
+		  
+		  <label for="myServo">Rotation about X-Axis</label>
+      <!-- data-device-type="Servo", data-pin="3" and data-axis="x" are the important properties here -->
+      <input type="range" id="myXservo" data-device-type="Servo" data-pin="5" data-axis="beta" />
+      
+      <label for="myServo">Rotation about Z-Axis</label>
+      <input type="range" id="myZservo" data-device-type="Servo" data-pin="6" data-axis="gamma" />
+      
+		</fieldset>
+		
+	</form>
+	
+  <script src="http://localhost:3000/nodebotui/nodebotui-client.js"></script>
+  
+</body>

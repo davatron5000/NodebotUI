@@ -22,12 +22,21 @@
    * associate them with the board
    */
   Board.prototype.getInputs = function() {  
+    
     var inputs = document.getElementById(this._element).getElementsByTagName('input');
     for (i = 0; i < inputs.length; i++) {
       if (inputs[i].hasAttribute('data-device-type')) {
         this[inputs[i].id] = new Input({'element': inputs[i], 'board': this._element });
       }
-    }  
+    }
+    
+    var fieldsets = document.getElementById(this._element).getElementsByTagName('fieldset');
+    for (i = 0; i < fieldsets.length; i++) {
+      if (fieldsets[i].hasAttribute('data-device-type')) {
+        this['_'+fieldsets[i].id] = new BrowserControl({'element': fieldsets[i], 'board': this._element });
+      }
+    }
+      
   }
   
   /**
@@ -41,3 +50,4 @@
       }
     });
   }
+  
