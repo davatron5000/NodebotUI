@@ -41,6 +41,10 @@ module.exports = function(grunt) {
   				{
     				match: /\/\/ @include warning.txt/g,
   					replacement: '<%= grunt.file.read("./client/src/warning.txt") %>'
+  				},
+  				{
+    				match: /\/\/ @include easing.js/g,
+  					replacement: '<%= grunt.file.read("./client/src/easing.js") %>'
   				}
   		  ],
   		  force: true

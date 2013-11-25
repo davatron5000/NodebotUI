@@ -2,7 +2,7 @@
 
 var nodebotui = (function () {
 
-  var socket, boards;
+  var socket, boards, easing = {};
   
   // @include Board.js  
   // @include Input.js  
@@ -13,6 +13,7 @@ var nodebotui = (function () {
   // @include inputTypes.js  
   // @include browserControls.js  
   // @include underscoreFunctions.js
+  // @include easing.js
    
   /**
    * Loop through the forms in the web page. For each one that has a 
