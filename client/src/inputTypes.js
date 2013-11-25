@@ -45,6 +45,9 @@
         
         this.min = el.getAttribute('min') || this.min;
         el.setAttribute('min', this.min);
+        
+        this.inputMin = el.getAttribute('data-in-min') || this.min;
+        this.inputMax = el.getAttribute('data-in-max') || this.max;
       }
     }
   }
