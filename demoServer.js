@@ -3,7 +3,7 @@
  **/
 
 var app = require('http').createServer(),
-  ui = require('./../lib/nodebotui.js').listen(app);
+  ui = require('nodebotui').listen(app);
   
 app.listen(3000);
 

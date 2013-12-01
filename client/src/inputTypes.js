@@ -1,6 +1,6 @@
 /**
    * These are all the HTML input types we recognize.
-   * Inputs can be standalone or grouped to form a browser control.
+   * Inputs can be standalone or grouped under fieldsets to form a browser control.
    *
    * _listen - A function that binds necessary event listeners to the <input> elements
    */

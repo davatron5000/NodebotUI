@@ -1,6 +1,6 @@
 /**
    * These are browser controls.
-   * Browser controls are groups of inputs working in concert
+   * Browser controls are inputs or groups of inputs working in concert
    *
    * _listen - A function that binds necessary event listeners to the <input> elements
    */
@@ -26,6 +26,7 @@
        **/
       _listen: function(el, browserControl) {
         window.addEventListener('deviceorientation', function(event) {
+          // This is stupid. We should not have to find the inputs every time we update.
           _each(['alpha', 'beta', 'gamma'], function (prefix) {
             if (browserControl[prefix+'Input']) {
               boards[browserControl._board][browserControl[prefix+'Input']].move(event[prefix]);

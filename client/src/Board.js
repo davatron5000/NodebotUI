@@ -12,7 +12,7 @@
     
     this._element = opts.element;
     
-    this.getInputs();
+    this.getControls();
     
   } 
   
@@ -21,12 +21,12 @@
    * have a data-device-type defined then initialize them and 
    * associate them with the board
    */
-  Board.prototype.getInputs = function() {  
+  Board.prototype.getControls = function() {  
     
     var inputs = document.getElementById(this._element).getElementsByTagName('input');
     for (i = 0; i < inputs.length; i++) {
       if (inputs[i].hasAttribute('data-device-type')) {
-        this[inputs[i].id] = new Input({'element': inputs[i], 'board': this._element });
+        this[inputs[i].id] = new BrowserControl({'element': inputs[i], 'board': this._element });
       }
     }
     
@@ -40,7 +40,7 @@
   }
   
   /**
-   * Method to initialize all the input devices and make sure
+   * Method to initialize all the control devices and make sure
    * that their initial values are set on the server side
    */
   Board.prototype.initialize = function() {  
