@@ -1,6 +1,6 @@
 /**
    * All the methods that are defined in Johnny-Five. These extend
-   * our Input objects (not elements)
+   * our BrowserControl objects (not their associated elements)
    */
    var deviceMethods = {
     

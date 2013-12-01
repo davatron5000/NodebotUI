@@ -5,7 +5,6 @@ var nodebotui = (function () {
   var socket, boards, easing = {};
   
   // @include Board.js  
-  // @include Input.js  
   // @include BrowserControl.js  
   // @include deviceTypes.js  
   // @include deviceMethods.js  

@@ -1,6 +1,6 @@
 /**
    * These are browser controls.
-   * Browser controls are groups of inputs working in concert
+   * Browser controls are inputs or groups of inputs working in concert
    *
    * _listen - A function that binds necessary event listeners to the <input> elements
    */
