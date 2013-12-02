@@ -23,7 +23,7 @@ var nodebotui = (function () {
     
     this._element = opts.element;
     
-    this.getInputs();
+    this.getControls();
     
   } 
   
@@ -32,12 +32,12 @@ var nodebotui = (function () {
    * have a data-device-type defined then initialize them and 
    * associate them with the board
    */
-  Board.prototype.getInputs = function() {  
+  Board.prototype.getControls = function() {  
     
     var inputs = document.getElementById(this._element).getElementsByTagName('input');
     for (i = 0; i < inputs.length; i++) {
       if (inputs[i].hasAttribute('data-device-type')) {
-        this[inputs[i].id] = new Input({'element': inputs[i], 'board': this._element });
+        this[inputs[i].id] = new BrowserControl({'element': inputs[i], 'board': this._element });
       }
     }
     
@@ -51,7 +51,7 @@ var nodebotui = (function () {
   }
   
   /**
-   * Method to initialize all the input devices and make sure
+   * Method to initialize all the control devices and make sure
    * that their initial values are set on the server side
    */
   Board.prototype.initialize = function() {  
@@ -62,44 +62,6 @@ var nodebotui = (function () {
     });
   }
     
-  /**
-   * Input
-   * @constructor
-   *
-   * @param {Object} opts
-   */
-  var Input = function( opts ) {
-    
-    if ( !(this instanceof Input) ) {
-      return new Input( opts );
-    }
-    
-    // Cache the element and set common attriubutes
-    var el = document.getElementById(opts.element.id);
-    this._board = opts.board;
-    this._element = el.id;
-    this.pin = el.getAttribute('data-pin');
-    
-    // Extend this object with the devicetype properties and methods
-    this.dataDeviceType = el.getAttribute('data-device-type');
-    _extend(this, deviceTypes[this.dataDeviceType]);
-    
-    // Extend this object with inputType properties and methods
-    this.inputType = el.getAttribute('type');
-    _extend(this, inputTypes[this.inputType]);
-    
-    // Bind event listeners
-    this._listen(el, this);
-  
-    // Add required methods to the object
-    _each(this._methods, function(method, index) {
-      this[method] = deviceMethods[method];
-    }, this);
-    
-    delete this._methods;
-    
-  }
-  
   /**
    * Browser Control
    * @constructor
@@ -116,26 +78,39 @@ var nodebotui = (function () {
     var el = document.getElementById(opts.element.id);
     this._board = opts.board;
     this._element = el.id;
+    this.pin = el.getAttribute('data-pin');
     
     // Extend this object with the browser control properties and methods
     this.dataDeviceType = el.getAttribute('data-device-type');
     _extend(this, browserControls[this.dataDeviceType]);
     
+    // Extend this object with the device properties and methods
+    _extend(this, deviceTypes[this.dataDeviceType]);
+ 
+    // Extend this object with inputType properties and methods
+    this.inputType = el.getAttribute('type');
+    _extend(this, inputTypes[this.inputType]);
+
+    // Add required methods to the object
+    _each(this._methods, function(method, index) {
+      this[method] = deviceMethods[method];
+    }, this);
+    
+    delete this._methods;
+
     // Initialize object
     this._initialize(el, this);
     
     // Bind event listeners
     this._listen(el, this);
   
-  }
-  
+  }  
   /**
    * These are all the device types defined in Johnny-Five. These
    * extend our Input objects (not elements)
    *
    * min - Minimum value for the device type
    * max - Maximum value for the device type
-   * initial - Initial value for the device type
    * _methods - A list of deviceMethods names that apply to the device type
    */ 
   var deviceTypes = {
@@ -147,27 +122,32 @@ var nodebotui = (function () {
     Servo: {
       min: 0,
       max: 180,
+      tolerance: 1,
+      _lastUpdate: 0,
       _methods: ['move'] //, 'center', 'sweep'
     }
   }
     
   /**
    * All the methods that are defined in Johnny-Five. These extend
-   * our Input objects (not elements)
+   * our BrowserControl objects (not their associated elements)
    */
    var deviceMethods = {
+    
     on: function() {
       if (socket) {
         socket.emit('call', { "board": this._board, "device": this._element, "method": "on" });
       }
       this._update(true);
     },
+    
     off: function() {
       if (socket) {
         socket.emit('call', { "board": this._board, "device": this._element, "method": "off" });
       }
       this._update(false);
     },
+    
     move: function(value) {
       
       // If no value was passed, then read the value from the HTML
@@ -189,16 +169,19 @@ var nodebotui = (function () {
         outValue = easing[this.easing](outValue);
       }
       
-      if (socket && boards[this._board]._ready) {
+      
+     if (socket && boards[this._board]._ready && this.tolerance < Math.abs(outValue - this._lastUpdate)) {
+        this._lastUpdate = outValue;
         socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: outValue });
       }
       this._update( outValue );
     }
+    
   }
     
   /**
    * These are browser controls.
-   * Browser controls are groups of inputs working in concert
+   * Browser controls are inputs or groups of inputs working in concert
    *
    * _listen - A function that binds necessary event listeners to the <input> elements
    */
@@ -217,6 +200,7 @@ var nodebotui = (function () {
        **/
       inputMin: -90,
       inputMax: 90,
+      tolerance: 1,
       
       /**
        * On deviceorientation check to see if there are inputs for each of the three axes
@@ -224,6 +208,7 @@ var nodebotui = (function () {
        **/
       _listen: function(el, browserControl) {
         window.addEventListener('deviceorientation', function(event) {
+          // This is stupid. We should not have to find the inputs every time we update.
           _each(['alpha', 'beta', 'gamma'], function (prefix) {
             if (browserControl[prefix+'Input']) {
               boards[browserControl._board][browserControl[prefix+'Input']].move(event[prefix]);
@@ -251,17 +236,9 @@ var nodebotui = (function () {
               if (inputs[i].getAttribute('data-axis') === prefix) {
                 this[prefix+'Input'] = inputs[i].id;
               }
-            }, this);
-            
-            if (inputs[i].hasAttribute('data-in-min') === false) {
-              inputs[i].setAttribute('data-in-min', this.inputMin)
-            }
-            
-            if (inputs[i].hasAttribute('data-in-max') === false) {
-              inputs[i].setAttribute('data-in-max', this.inputMax)
-            }
-            
+            }, this);  
           }
+          
         }
         
       }
@@ -269,7 +246,7 @@ var nodebotui = (function () {
   }  
   /**
    * These are all the HTML input types we recognize.
-   * Inputs can be standalone or grouped to form a browser control.
+   * Inputs can be standalone or grouped under fieldsets to form a browser control.
    *
    * _listen - A function that binds necessary event listeners to the <input> elements
    */
@@ -315,15 +292,33 @@ var nodebotui = (function () {
         this.min = el.getAttribute('min') || this.min;
         el.setAttribute('min', this.min);
         
-        this.inputMin = el.getAttribute('data-in-min') || this.min;
-        this.inputMax = el.getAttribute('data-in-max') || this.max;
+        if (el.hasAttribute('data-thresholds')) {
+          var thresholds = el.getAttribute('data-thresholds').split(',');
+          this.inputMin = Number(thresholds[0]);
+          this.inputMax = Number(thresholds[1]);
+          this.min = Number(thresholds[2]);
+          this.max = Number(thresholds[3]);
+        }
+        
+        if (el.hasAttribute('data-input-thresholds')) {
+          var thresholds = el.getAttribute('data-input-thresholds').split(',');
+          this.inputMin = Number(thresholds[0]);
+          this.inputMax = Number(thresholds[1]);
+        }
+        
+        if (el.hasAttribute('data-output-thresholds')) {
+          var thresholds = el.getAttribute('data-output-thresholds').split(',');
+          this.min = Number(thresholds[0]);
+          this.max = Number(thresholds[1]);
+        }
+        
       }
     }
   }
     
   /**
    * These are browser controls.
-   * Browser controls are groups of inputs working in concert
+   * Browser controls are inputs or groups of inputs working in concert
    *
    * _listen - A function that binds necessary event listeners to the <input> elements
    */
@@ -342,6 +337,7 @@ var nodebotui = (function () {
        **/
       inputMin: -90,
       inputMax: 90,
+      tolerance: 1,
       
       /**
        * On deviceorientation check to see if there are inputs for each of the three axes
@@ -349,6 +345,7 @@ var nodebotui = (function () {
        **/
       _listen: function(el, browserControl) {
         window.addEventListener('deviceorientation', function(event) {
+          // This is stupid. We should not have to find the inputs every time we update.
           _each(['alpha', 'beta', 'gamma'], function (prefix) {
             if (browserControl[prefix+'Input']) {
               boards[browserControl._board][browserControl[prefix+'Input']].move(event[prefix]);
@@ -376,17 +373,9 @@ var nodebotui = (function () {
               if (inputs[i].getAttribute('data-axis') === prefix) {
                 this[prefix+'Input'] = inputs[i].id;
               }
-            }, this);
-            
-            if (inputs[i].hasAttribute('data-in-min') === false) {
-              inputs[i].setAttribute('data-in-min', this.inputMin)
-            }
-            
-            if (inputs[i].hasAttribute('data-in-max') === false) {
-              inputs[i].setAttribute('data-in-max', this.inputMax)
-            }
-            
+            }, this);  
           }
+          
         }
         
       }
@@ -503,7 +492,7 @@ _each( baseEasings, function( easeIn, name ) {
   }
   
   /**
-   * This bit loads the socket.io client script asynchronously
+   * This next part loads the socket.io client script asynchronously
    * and then fires our _getBoards function
    **/
   var script = document.createElement('script');
