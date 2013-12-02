@@ -66,6 +66,10 @@
           this.max = Number(thresholds[1]);
         }
         
+        if (el.hasAttribute('data-tolerance')) {
+          this.tolerance = Number(el.getAttribute('data-tolerance'));
+        }
+        
       }
     }
   }
