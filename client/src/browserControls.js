@@ -54,18 +54,9 @@
               if (inputs[i].getAttribute('data-axis') === prefix) {
                 this[prefix+'Input'] = inputs[i].id;
               }
-            }, this);
-            
-            /* I don't think these two should be here */
-            if (inputs[i].hasAttribute('data-in-min') === false) {
-              inputs[i].setAttribute('data-in-min', this.inputMin)
-            }
-            
-            if (inputs[i].hasAttribute('data-in-max') === false) {
-              inputs[i].setAttribute('data-in-max', this.inputMax)
-            }
-            
+            }, this);  
           }
+          
         }
         
       }
