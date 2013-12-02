@@ -122,7 +122,7 @@ var nodebotui = (function () {
     Servo: {
       min: 0,
       max: 180,
-      tolerance: 1,
+      tolerance: 0,
       _lastUpdate: 0,
       _methods: ['move'] //, 'center', 'sweep'
     }
@@ -200,7 +200,6 @@ var nodebotui = (function () {
        **/
       inputMin: -90,
       inputMax: 90,
-      tolerance: 1,
       
       /**
        * On deviceorientation check to see if there are inputs for each of the three axes
@@ -312,6 +311,10 @@ var nodebotui = (function () {
           this.max = Number(thresholds[1]);
         }
         
+        if (el.hasAttribute('data-tolerance')) {
+          this.tolerance = Number(el.getAttribute('data-tolerance'));
+        }
+        
       }
     }
   }
@@ -337,7 +340,6 @@ var nodebotui = (function () {
        **/
       inputMin: -90,
       inputMax: 90,
-      tolerance: 1,
       
       /**
        * On deviceorientation check to see if there are inputs for each of the three axes
