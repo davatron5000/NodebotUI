@@ -21,7 +21,6 @@
     _extend(this, browserControls[this.dataDeviceType]);
     
     // Extend this object with the device properties and methods
-    this.dataDeviceType = el.getAttribute('data-device-type');
     _extend(this, deviceTypes[this.dataDeviceType]);
  
     // Extend this object with inputType properties and methods
