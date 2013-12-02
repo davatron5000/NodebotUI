@@ -15,6 +15,8 @@
     Servo: {
       min: 0,
       max: 180,
+      tolerance: 1,
+      _lastUpdate: 0,
       _methods: ['move'] //, 'center', 'sweep'
     }
   }
