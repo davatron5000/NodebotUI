@@ -39,7 +39,9 @@
         outValue = easing[this.easing](outValue);
       }
       
-      if (socket && boards[this._board]._ready) {
+      
+     if (socket && boards[this._board]._ready && this.tolerance < Math.abs(outValue - this._lastUpdate)) {
+        this._lastUpdate = outValue;
         socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: outValue });
       }
       this._update( outValue );
