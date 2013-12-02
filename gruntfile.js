@@ -15,10 +15,6 @@ module.exports = function(grunt) {
   					replacement: '<%= grunt.file.read("./client/src/BrowserControl.js") %>'
   				},
   				{
-    				match: /\/\/ @include Input.js/g,
-  					replacement: '<%= grunt.file.read("./client/src/Input.js") %>'
-  				},
-  				{
     				match: /\/\/ @include deviceTypes.js/g,
   					replacement: '<%= grunt.file.read("./client/src/deviceTypes.js") %>'
   				},
