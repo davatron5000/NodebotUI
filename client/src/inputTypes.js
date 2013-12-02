@@ -46,8 +46,26 @@
         this.min = el.getAttribute('min') || this.min;
         el.setAttribute('min', this.min);
         
-        this.inputMin = el.getAttribute('data-in-min') || this.min;
-        this.inputMax = el.getAttribute('data-in-max') || this.max;
+        if (el.hasAttribute('data-thresholds')) {
+          var thresholds = el.getAttribute('data-thresholds').split(',');
+          this.inputMin = Number(thresholds[0]);
+          this.inputMax = Number(thresholds[1]);
+          this.min = Number(thresholds[2]);
+          this.max = Number(thresholds[3]);
+        }
+        
+        if (el.hasAttribute('data-input-thresholds')) {
+          var thresholds = el.getAttribute('data-input-thresholds').split(',');
+          this.inputMin = Number(thresholds[0]);
+          this.inputMax = Number(thresholds[1]);
+        }
+        
+        if (el.hasAttribute('data-output-thresholds')) {
+          var thresholds = el.getAttribute('data-output-thresholds').split(',');
+          this.min = Number(thresholds[0]);
+          this.max = Number(thresholds[1]);
+        }
+        
       }
     }
   }
