@@ -32,6 +32,8 @@
       if (inValue < 0) inValue = 0;
       if (inValue > 1) inValue = 1;
       
+      if (this.inverse) inValue = 1 - inValue;
+      
       var outValue = inValue * (this.max - this.min) + this.min;
       
       // If we have an easing function use it
@@ -40,7 +42,7 @@
       }
       
       
-     if (socket && boards[this._board]._ready && this.tolerance < Math.abs(outValue - this._lastUpdate)) {
+     if (socket && boards[this._board]._ready && this.tolerance < Math.abs(outValue - this._lastUpdate)) { 
         this._lastUpdate = outValue;
         socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: outValue });
       }

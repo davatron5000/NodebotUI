@@ -70,6 +70,10 @@
           this.tolerance = Number(el.getAttribute('data-tolerance'));
         }
         
+        if (el.hasAttribute('data-inverse')) {
+          this.inverse = true;
+        }
+        
       }
     }
   }
