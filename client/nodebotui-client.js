@@ -47,7 +47,7 @@ var nodebotui = (function () {
         this['_'+fieldsets[i].id] = new BrowserControl({'element': fieldsets[i], 'board': this._element });
       }
     }
-      
+    
   }
   
   /**
@@ -76,6 +76,7 @@ var nodebotui = (function () {
     
     // Cache the element and set common attributes
     var el = document.getElementById(opts.element.id);
+    
     this._board = opts.board;
     this._element = el.id;
     this.pin = el.getAttribute('data-pin');
@@ -103,7 +104,6 @@ var nodebotui = (function () {
     
     // Bind event listeners
     this._listen(el, this);
-  
   }  
   /**
    * These are all the device types defined in Johnny-Five. These
@@ -162,6 +162,8 @@ var nodebotui = (function () {
       if (inValue < 0) inValue = 0;
       if (inValue > 1) inValue = 1;
       
+      if (this.inverse) inValue = 1 - inValue;
+      
       var outValue = inValue * (this.max - this.min) + this.min;
       
       // If we have an easing function use it
@@ -170,7 +172,7 @@ var nodebotui = (function () {
       }
       
       
-     if (socket && boards[this._board]._ready && this.tolerance < Math.abs(outValue - this._lastUpdate)) {
+     if (socket && boards[this._board]._ready && this.tolerance < Math.abs(outValue - this._lastUpdate)) { 
         this._lastUpdate = outValue;
         socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: outValue });
       }
@@ -313,6 +315,10 @@ var nodebotui = (function () {
         
         if (el.hasAttribute('data-tolerance')) {
           this.tolerance = Number(el.getAttribute('data-tolerance'));
+        }
+        
+        if (el.hasAttribute('data-inverse')) {
+          this.inverse = true;
         }
         
       }
