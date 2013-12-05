@@ -15,10 +15,6 @@ module.exports = function(grunt) {
   					replacement: '<%= grunt.file.read("./client/src/BrowserControl.js") %>'
   				},
   				{
-    				match: /\/\/ @include Input.js/g,
-  					replacement: '<%= grunt.file.read("./client/src/Input.js") %>'
-  				},
-  				{
     				match: /\/\/ @include deviceTypes.js/g,
   					replacement: '<%= grunt.file.read("./client/src/deviceTypes.js") %>'
   				},
@@ -53,12 +49,25 @@ module.exports = function(grunt) {
           {expand: true, flatten: true, src: ['./client/src/nodebotui-client.js'], dest: './client'}
         ]
 			}
+		},
+		jshint: {
+		  client: ['client/src/*.js']
+		},
+		uglify: {
+		  client: {
+        files: [
+          { src: ['client/nodebotui-client.js'], dest: 'client/nodebotui-client.min.js', filter: 'isFile' }
+        ]
+      }
 		}
+		
 	});
 
 	//grunt.loadNpmTasks('grunt-contrib');
 	grunt.loadNpmTasks('grunt-replace');
+	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 	
-	grunt.registerTask('default', ['replace']);
+	grunt.registerTask('default', ['jshint', 'replace', 'uglify']);
 }
 	

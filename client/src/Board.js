@@ -10,34 +10,33 @@
       return new Board( opts );
     }
     
-    this._element = opts.element;
+    this._extendAttributes(opts);    
+    this.getControls(opts.id.nodeValue);
     
-    this.getControls();
-    
-  } 
+  };
   
   /**
-   * Method to loop through all the inputs within a form, if they 
-   * have a data-device-type defined then initialize them and 
-   * associate them with the board
+   * Method to loop through all the inputs and fieldsets within 
+   * a form, if they have a data-device-type defined then initialize
+   * them and associate them with the board
    */
-  Board.prototype.getControls = function() {  
+  Board.prototype.getControls = function(board) {  
     
-    var inputs = document.getElementById(this._element).getElementsByTagName('input');
+    var inputs = document.getElementById(this.id).getElementsByTagName('input');
     for (i = 0; i < inputs.length; i++) {
       if (inputs[i].hasAttribute('data-device-type')) {
-        this[inputs[i].id] = new BrowserControl({'element': inputs[i], 'board': this._element });
+        this[inputs[i].id] = new BrowserControl(inputs[i].attributes, board);
       }
     }
     
-    var fieldsets = document.getElementById(this._element).getElementsByTagName('fieldset');
+    var fieldsets = document.getElementById(this.id).getElementsByTagName('fieldset');
     for (i = 0; i < fieldsets.length; i++) {
       if (fieldsets[i].hasAttribute('data-device-type')) {
-        this['_'+fieldsets[i].id] = new BrowserControl({'element': fieldsets[i], 'board': this._element });
+        this['_'+fieldsets[i].id] = new BrowserControl(fieldsets[i].attributes, board);
       }
     }
       
-  }
+  };
   
   /**
    * Method to initialize all the control devices and make sure
@@ -49,5 +48,15 @@
         device._initialize();
       }
     });
-  }
+  };
+  
+  Board.prototype._extendAttributes = function(attrs) {
+    
+    var i, l, result = {};
+    
+    for (i=0, l=attrs.length; i<l; i++){
+      result[(attrs.item(i).nodeName.replace('data-', ''))] = attrs.item(i).nodeValue;
+    }
+    _extend(this, result);
+  };
   

@@ -1,0 +1,23 @@
+<head>
+	<title>Labyrinth Example</title>
+</head>
+
+<body>
+	
+	<form id="sampleBoard" data-device-type="board">
+	
+		<fieldset id="orienter" data-device-type="Orientation">
+		  
+		  <label for="myServo">Front/Back Tilt</label>
+      <input type="range" id="myXservo" data-device-type="Servo" data-pin="5" data-axis="beta" data-inverse="true" min="45" max="135" data-thresholds="-45, 45" data-tolerance="1" />
+      
+      <label for="myServo">Left/Right Tilt</label>
+      <input type="range" id="myZservo" data-device-type="Servo" data-pin="6" data-axis="gamma" data-inverse="true" min="45" max="145" data-thresholds="-45, 45" data-tolerance="1" />
+      
+		</fieldset>
+		
+	</form>
+	
+  <script src="nodebotui-client.js"></script>
+  
+</body>
