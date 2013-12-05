@@ -6,14 +6,14 @@
     
     on: function() {
       if (socket) {
-        socket.emit('call', { "board": this._board, "device": this._element, "method": "on" });
+        socket.emit('call', { "board": this._board, "device": this.id, "method": "on" });
       }
       this._update(true);
     },
     
     off: function() {
       if (socket) {
-        socket.emit('call', { "board": this._board, "device": this._element, "method": "off" });
+        socket.emit('call', { "board": this._board, "device": this.id, "method": "off" });
       }
       this._update(false);
     },
@@ -21,8 +21,8 @@
     move: function(value) {
       
       // If no value was passed, then read the value from the HTML
-      if (value === null) {
-        value = Number(document.getElementById(this._element).value)
+      if (value === null || typeof value === 'undefined') {
+        value = Number(document.getElementById(this.id).value);
       }
       
       // Find the base value (0-1)
@@ -40,14 +40,16 @@
       if (this.easing) {
         outValue = easing[this.easing](outValue);
       }
-      
-      
-     if (socket && boards[this._board]._ready && this.tolerance < Math.abs(outValue - this._lastUpdate)) { 
+           
+      // If the board is ready and we've moved more than out tolerance value, then send an update to the server
+      if (socket && boards[this._board]._ready && Number(this.tolerance) <= Math.abs(outValue - this._lastUpdate)) { 
         this._lastUpdate = outValue;
-        socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: outValue });
+        socket.emit('call', { "board": this._board, "device": this.id, "method": "move", params: outValue });        
       }
-      this._update( outValue );
+      
+      // Update the browserControl
+      this._update( value );
     }
     
-  }
+  };
   
