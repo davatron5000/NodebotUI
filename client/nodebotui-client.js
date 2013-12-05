@@ -21,34 +21,33 @@ var nodebotui = (function () {
       return new Board( opts );
     }
     
-    this._element = opts.element;
+    this._extendAttributes(opts);    
+    this.getControls(opts.id.nodeValue);
     
-    this.getControls();
-    
-  } 
+  };
   
   /**
-   * Method to loop through all the inputs within a form, if they 
-   * have a data-device-type defined then initialize them and 
-   * associate them with the board
+   * Method to loop through all the inputs and fieldsets within 
+   * a form, if they have a data-device-type defined then initialize
+   * them and associate them with the board
    */
-  Board.prototype.getControls = function() {  
+  Board.prototype.getControls = function(board) {  
     
-    var inputs = document.getElementById(this._element).getElementsByTagName('input');
+    var inputs = document.getElementById(this.id).getElementsByTagName('input');
     for (i = 0; i < inputs.length; i++) {
       if (inputs[i].hasAttribute('data-device-type')) {
-        this[inputs[i].id] = new BrowserControl({'element': inputs[i], 'board': this._element });
+        this[inputs[i].id] = new BrowserControl(inputs[i].attributes, board);
       }
     }
     
-    var fieldsets = document.getElementById(this._element).getElementsByTagName('fieldset');
+    var fieldsets = document.getElementById(this.id).getElementsByTagName('fieldset');
     for (i = 0; i < fieldsets.length; i++) {
       if (fieldsets[i].hasAttribute('data-device-type')) {
-        this['_'+fieldsets[i].id] = new BrowserControl({'element': fieldsets[i], 'board': this._element });
+        this['_'+fieldsets[i].id] = new BrowserControl(fieldsets[i].attributes, board);
       }
     }
-    
-  }
+      
+  };
   
   /**
    * Method to initialize all the control devices and make sure
@@ -60,7 +59,17 @@ var nodebotui = (function () {
         device._initialize();
       }
     });
-  }
+  };
+  
+  Board.prototype._extendAttributes = function(attrs) {
+    
+    var i, l, result = {};
+    
+    for (i=0, l=attrs.length; i<l; i++){
+      result[(attrs.item(i).nodeName.replace('data-', ''))] = attrs.item(i).nodeValue;
+    }
+    _extend(this, result);
+  };
     
   /**
    * Browser Control
@@ -68,43 +77,65 @@ var nodebotui = (function () {
    *
    * @param {Object} opts
    */
-  var BrowserControl = function( opts ) {
+  var BrowserControl = function( opts, board ) {
     
     if ( !(this instanceof BrowserControl) ) {
       return new BrowserControl( opts );
     }
     
     // Cache the element and set common attributes
-    var el = document.getElementById(opts.element.id);
+    var el = document.getElementById(opts.id.nodeValue);
     
-    this._board = opts.board;
-    this._element = el.id;
-    this.pin = el.getAttribute('data-pin');
+    this._board = board;
+    this._ready = false;
     
-    // Extend this object with the browser control properties and methods
-    this.dataDeviceType = el.getAttribute('data-device-type');
-    _extend(this, browserControls[this.dataDeviceType]);
+    // Extend this object with the browser control, device and input type properties and methods
+    this._extendAttributes(opts); 
+    _extend(this, browserControls[this["device-type"]], deviceTypes[this["device-type"]], inputTypes[this.type]); 
     
-    // Extend this object with the device properties and methods
-    _extend(this, deviceTypes[this.dataDeviceType]);
- 
-    // Extend this object with inputType properties and methods
-    this.inputType = el.getAttribute('type');
-    _extend(this, inputTypes[this.inputType]);
-
+    
+    // This is goofy. I run this once to get type and device-type and then run it again to reset any attributes which may have
+    // been overridden by browserControls[this["device-type"]], deviceTypes[this["device-type"]] or inputTypes[this.type]
+    this._extendAttributes(opts);
+    
     // Add required methods to the object
-    _each(this._methods, function(method, index) {
-      this[method] = deviceMethods[method];
-    }, this);
+    if (this._methods) {
+      _each(this._methods, function(method, index) {
+        this[method] = deviceMethods[method];
+      }, this);
+    }
     
     delete this._methods;
-
+    
     // Initialize object
-    this._initialize(el, this);
+    if (this._initialize)
+      this._initialize(el, this);
     
     // Bind event listeners
-    this._listen(el, this);
-  }  
+     if (this._listen)
+      this._listen(el, this);
+  
+  };
+  
+  BrowserControl.prototype._extendAttributes = function(attrs) {
+    
+    var i, l, val, result = {};
+    
+    for (i=0, l=attrs.length; i<l; i++){
+      val = attrs.item(i).nodeValue;
+      if(isNumber(val)) {
+        result[(attrs.item(i).nodeName.replace('data-', ''))] = Number(val);
+      } else {
+        result[(attrs.item(i).nodeName.replace('data-', ''))] = val;
+      }
+    }
+    _extend(this, result);
+  };
+  
+  function isNumber(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+  }
+  
   /**
    * These are all the device types defined in Johnny-Five. These
    * extend our Input objects (not elements)
@@ -122,11 +153,11 @@ var nodebotui = (function () {
     Servo: {
       min: 0,
       max: 180,
-      tolerance: 0,
-      _lastUpdate: 0,
+      "tolerance": 0,
+      _lastUpdate: -999,
       _methods: ['move'] //, 'center', 'sweep'
     }
-  }
+  };
     
   /**
    * All the methods that are defined in Johnny-Five. These extend
@@ -136,14 +167,14 @@ var nodebotui = (function () {
     
     on: function() {
       if (socket) {
-        socket.emit('call', { "board": this._board, "device": this._element, "method": "on" });
+        socket.emit('call', { "board": this._board, "device": this.id, "method": "on" });
       }
       this._update(true);
     },
     
     off: function() {
       if (socket) {
-        socket.emit('call', { "board": this._board, "device": this._element, "method": "off" });
+        socket.emit('call', { "board": this._board, "device": this.id, "method": "off" });
       }
       this._update(false);
     },
@@ -151,8 +182,8 @@ var nodebotui = (function () {
     move: function(value) {
       
       // If no value was passed, then read the value from the HTML
-      if (value === null) {
-        value = Number(document.getElementById(this._element).value)
+      if (value === null || typeof value === 'undefined') {
+        value = Number(document.getElementById(this.id).value);
       }
       
       // Find the base value (0-1)
@@ -170,16 +201,18 @@ var nodebotui = (function () {
       if (this.easing) {
         outValue = easing[this.easing](outValue);
       }
-      
-      
-     if (socket && boards[this._board]._ready && this.tolerance < Math.abs(outValue - this._lastUpdate)) { 
+           
+      // If the board is ready and we've moved more than out tolerance value, then send an update to the server
+      if (socket && boards[this._board]._ready && Number(this.tolerance) <= Math.abs(outValue - this._lastUpdate)) { 
         this._lastUpdate = outValue;
-        socket.emit('call', { "board": this._board, "device": this._element, "method": "move", params: outValue });
+        socket.emit('call', { "board": this._board, "device": this.id, "method": "move", params: outValue });        
       }
-      this._update( outValue );
+      
+      // Update the browserControl
+      this._update( value );
     }
     
-  }
+  };
     
   /**
    * These are browser controls.
@@ -197,24 +230,16 @@ var nodebotui = (function () {
     Orientation: {
        
       /**
-       * By default ignore input values below -90 and above 90. I think most use cases
-       * will expect that the device is right side up.
-       **/
-      inputMin: -90,
-      inputMax: 90,
-      
-      /**
        * On deviceorientation check to see if there are inputs for each of the three axes
        * If so, move that range input
        **/
       _listen: function(el, browserControl) {
         window.addEventListener('deviceorientation', function(event) {
-          // This is stupid. We should not have to find the inputs every time we update.
           _each(['alpha', 'beta', 'gamma'], function (prefix) {
-            if (browserControl[prefix+'Input']) {
-              boards[browserControl._board][browserControl[prefix+'Input']].move(event[prefix]);
+            if (this[prefix+'Input']) {
+              boards[this._board][this[prefix+'Input']].move(event[prefix]);
             }
-          }, this);          
+          }, browserControl);          
         });
       },
       
@@ -226,25 +251,21 @@ var nodebotui = (function () {
        * Bind each of the inputs associated with the browser control with
        * the appropriate axis
        **/
-       _initialize: function(el, browserControl) {
-        var inputs = document.getElementById(this._element).getElementsByTagName('input');
+      _initialize: function(el, browserControl) {
+        var inputs = document.getElementById(this.id).getElementsByTagName('input');
         
         // Loop through all the inputs within this fieldset
         for (i = 0; i < inputs.length; i++) {
           
-          if (inputs[i].hasAttribute('data-axis')) {
-            _each(['alpha', 'beta', 'gamma'], function (prefix) {
-              if (inputs[i].getAttribute('data-axis') === prefix) {
-                this[prefix+'Input'] = inputs[i].id;
-              }
-            }, this);  
+          if (inputs[i].hasAttribute('data-axis')) { 
+            this[inputs[i].getAttribute('data-axis')+'Input'] = inputs[i].id;
           }
           
         }
         
       }
     }
-  }  
+  };  
   /**
    * These are all the HTML input types we recognize.
    * Inputs can be standalone or grouped under fieldsets to form a browser control.
@@ -261,14 +282,17 @@ var nodebotui = (function () {
     checkbox: {
       _listen: function(el, input) {
         el.addEventListener('change', function() { 
-          el.checked ? input.on() : input.off(); 
+          if (el.checked) {
+            input.on();
+          } else {
+            input.off(); 
+          }
         });
       },
       _update: function(status) {
-        document.getElementById(this._element).checked = status;
+        document.getElementById(this.id).checked = status;
       }
     },
-    
     
     /**
      * input type="range"
@@ -278,52 +302,34 @@ var nodebotui = (function () {
      range: {
       _listen: function(el, input) {
         el.addEventListener('change', function() { 
-          input.move()
+          input.move();
         });
       },
       _update: function(status) {
-        document.getElementById(this._element).value = status;
+        document.getElementById(this.id).value = status;
       },
       _initialize: function() {
-        var el = document.getElementById(this._element);
+
+        var el = document.getElementById(this.id);
         
-        this.max = el.getAttribute('max') || this.max;
+        this.max = Number(el.getAttribute('max')) || this.max;
         el.setAttribute('max', this.max);
         
-        this.min = el.getAttribute('min') || this.min;
+        this.min = Number(el.getAttribute('min')) || this.min;
         el.setAttribute('min', this.min);
         
-        if (el.hasAttribute('data-thresholds')) {
-          var thresholds = el.getAttribute('data-thresholds').split(',');
+        if (this.thresholds) {
+          var thresholds = this.thresholds.split(',');
           this.inputMin = Number(thresholds[0]);
           this.inputMax = Number(thresholds[1]);
-          this.min = Number(thresholds[2]);
-          this.max = Number(thresholds[3]);
-        }
-        
-        if (el.hasAttribute('data-input-thresholds')) {
-          var thresholds = el.getAttribute('data-input-thresholds').split(',');
-          this.inputMin = Number(thresholds[0]);
-          this.inputMax = Number(thresholds[1]);
-        }
-        
-        if (el.hasAttribute('data-output-thresholds')) {
-          var thresholds = el.getAttribute('data-output-thresholds').split(',');
-          this.min = Number(thresholds[0]);
-          this.max = Number(thresholds[1]);
-        }
-        
-        if (el.hasAttribute('data-tolerance')) {
-          this.tolerance = Number(el.getAttribute('data-tolerance'));
-        }
-        
-        if (el.hasAttribute('data-inverse')) {
-          this.inverse = true;
+        } else {
+          this.inputMin = this.min;
+          this.inputMax = this.max;
         }
         
       }
     }
-  }
+  };
     
   /**
    * These are browser controls.
@@ -341,24 +347,16 @@ var nodebotui = (function () {
     Orientation: {
        
       /**
-       * By default ignore input values below -90 and above 90. I think most use cases
-       * will expect that the device is right side up.
-       **/
-      inputMin: -90,
-      inputMax: 90,
-      
-      /**
        * On deviceorientation check to see if there are inputs for each of the three axes
        * If so, move that range input
        **/
       _listen: function(el, browserControl) {
         window.addEventListener('deviceorientation', function(event) {
-          // This is stupid. We should not have to find the inputs every time we update.
           _each(['alpha', 'beta', 'gamma'], function (prefix) {
-            if (browserControl[prefix+'Input']) {
-              boards[browserControl._board][browserControl[prefix+'Input']].move(event[prefix]);
+            if (this[prefix+'Input']) {
+              boards[this._board][this[prefix+'Input']].move(event[prefix]);
             }
-          }, this);          
+          }, browserControl);          
         });
       },
       
@@ -370,25 +368,21 @@ var nodebotui = (function () {
        * Bind each of the inputs associated with the browser control with
        * the appropriate axis
        **/
-       _initialize: function(el, browserControl) {
-        var inputs = document.getElementById(this._element).getElementsByTagName('input');
+      _initialize: function(el, browserControl) {
+        var inputs = document.getElementById(this.id).getElementsByTagName('input');
         
         // Loop through all the inputs within this fieldset
         for (i = 0; i < inputs.length; i++) {
           
-          if (inputs[i].hasAttribute('data-axis')) {
-            _each(['alpha', 'beta', 'gamma'], function (prefix) {
-              if (inputs[i].getAttribute('data-axis') === prefix) {
-                this[prefix+'Input'] = inputs[i].id;
-              }
-            }, this);  
+          if (inputs[i].hasAttribute('data-axis')) { 
+            this[inputs[i].getAttribute('data-axis')+'Input'] = inputs[i].id;
           }
           
         }
         
       }
     }
-  }  
+  };  
   /**
    * The following is, ahem, borrowed code
    */
@@ -403,24 +397,25 @@ var nodebotui = (function () {
       }
     });
     return obj;
-  };
+  }
   
   // each function from underscore.js http://underscorejs.org/#each
   function _each(obj, iterator, context) {
-    if (obj == null) return;
+    var i;
+    if (obj === null) return;
     if (Array.prototype.forEach && obj.forEach === Array.prototype.forEach) {
       obj.forEach(iterator, context);
     } else if (obj.length === +obj.length) {
-      for (var i = 0, length = obj.length; i < length; i++) {
+      for (i = 0, length = obj.length; i < length; i++) {
         if (iterator.call(context, obj[i], i, obj) === {}) return;
       }
     } else {
       var keys = _keys(obj);
-      for (var i = 0, length = keys.length; i < length; i++) {
+      for (i = 0, length = keys.length; i < length; i++) {
         if (iterator.call(context, obj[keys[i]], keys[i], obj) === {}) return;
       }
     }
-  };
+  }
   
   // keys function from underscore.js http://underscorejs.org/#keys
   function _keys(obj) {
@@ -428,8 +423,7 @@ var nodebotui = (function () {
     var keys = [];
     for (var key in obj) if (hasOwnProperty.call(obj, key)) keys.push(key);
     return keys;
-  };
-  
+  }  
   /**
  * Copied from jQuery UI 
  * https://github.com/jquery/jquery-ui
@@ -491,8 +485,7 @@ _each( baseEasings, function( easeIn, name ) {
     
     for (i = 0; i < forms.length; i++) {
       if (forms[i].getAttribute('data-device-type') === 'board') {
-        boards[forms[i].id] = new Board({ 'element': forms[i].id});
-        
+        boards[forms[i].id] = new Board(forms[i].attributes);
       }
     }
     
@@ -521,25 +514,28 @@ _each( baseEasings, function( easeIn, name ) {
   }
   
   script.onload = function(){
-
-      socket = io.connect(nbuiScriptSrc.replace('/nodebotui/nodebotui-client.js', ''));
-            
-      // tell the server to initialize our new boards
-      _each(boards, function( board, key) {
-        socket.emit('new board', board );
+      
+      socket = io.connect();
+    
+      socket.on('connect', function () {
+        // tell the server to initialize our new boards
+        console.log('connect');
+        _each(boards, function( board, key) {
+          socket.emit('new board', board );
+        });
       });
       
       // This is where we listen for events from the server
       socket.on('board ready', function( opts ) {
+        console.log('board ready');
         boards[opts.id]._ready = true;
         boards[opts.id].initialize();
-        console.log('board ready');
       });
       
   };
 
   // Insert script element for socket.io
-  script.src = nbuiScriptSrc.replace('nodebotui/nodebotui-client.js', 'socket.io/socket.io.js');
+  script.src = 'socket.io/socket.io.js';
   document.getElementsByTagName('head')[0].appendChild(script);
   
   //Initialize boards
