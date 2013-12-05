@@ -3,22 +3,14 @@ NodebotUI
 
 A client/server framework for rapid prototyping of browser controlled robotic systems. The goal is a complete Bootstrap-like experience for assembling HTML that talks to Johnny-Five via socket.io. The user should only have to edit HTML to wire-up a basic interface.
 
-This is just a bare-bones POC right now. If you'd like to try it out, follow these steps:
-
-* Grab a copy of this repo
-* In the NodebotUI folder run ````npm install````
-* Wire up an arduino with an LED on pin 13
-* In the NodebotUI run ````node demoServer````
-* In your browser navigate to http://localhost:3000/led.html
-
-servo.html and orientation.html are also ready to try out
+This is just a bare-bones POC right now. If you'd like to try it out head over to the [Getting Started](https://github.com/davatron5000/NodebotUI/wiki/Getting-Started) wiki page. You can find more details in the [Documentation](https://github.com/davatron5000/NodebotUI/wiki/Documentation)
 
 ##Notes
 
 * This is just a POC for the client and server js structure. There is no CSS or custom controls.
-* I've only added support for LED's and servos on a single board, and only the on(), off() and move() methods at that. Additional device types and methods should be pretty easy
+* I've only added support for LED's and servos on a single board, and only the on(), off() and move() methods at that. Additional device types and methods should be pretty easy.
 * The first browserDevice is implemented (orientation)
-* After the page loads it takes a few seconds to intialize the board
+* Make sure you wait for board ready before you click the checkbox or move the slider.
 * There really isn't much to the server code. The heavy lifting is all in nodebotui-client.
 * There is also an api for the browser that can be used from the console or in other JS.
 
