@@ -20,10 +20,12 @@
     this._extendAttributes(opts); 
     _extend(this, browserControls[this["device-type"]], deviceTypes[this["device-type"]], inputTypes[this.type]); 
     
-    
     // This is goofy. I run this once to get type and device-type and then run it again to reset any attributes which may have
     // been overridden by browserControls[this["device-type"]], deviceTypes[this["device-type"]] or inputTypes[this.type]
     this._extendAttributes(opts);
+    
+    // We have to delete the type object because it will conflict in johnny-five
+    delete this.type;
     
     // Add required methods to the object
     if (this._methods) {
@@ -46,14 +48,16 @@
   
   BrowserControl.prototype._extendAttributes = function(attrs) {
     
-    var i, l, val, result = {};
+    var i, l, name, val, result = {};
     
     for (i=0, l=attrs.length; i<l; i++){
       val = attrs.item(i).nodeValue;
+      name = attrs.item(i).nodeName.replace('data-', '');
+      
       if(isNumber(val)) {
-        result[(attrs.item(i).nodeName.replace('data-', ''))] = Number(val);
+        result[name] = Number(val);
       } else {
-        result[(attrs.item(i).nodeName.replace('data-', ''))] = val;
+        result[name] = val;
       }
     }
     _extend(this, result);

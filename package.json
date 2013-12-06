@@ -2,7 +2,7 @@
   "name": "nodebotui",
   "main": "lib/nodebotui",
   "description": "A client/server framework for rapid prototyping of browser controlled robotic systems.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/davatron5000/nodebotui",
   "author": {
     "name": "Dave Rupert"
