@@ -25,6 +25,9 @@
     // been overridden by browserControls[this["device-type"]], deviceTypes[this["device-type"]] or inputTypes[this.type]
     this._extendAttributes(opts);
     
+    // We have to delete the type object because it will conflict in johnny-five
+    delete this.type;
+    
     // Add required methods to the object
     if (this._methods) {
       _each(this._methods, function(method, index) {
