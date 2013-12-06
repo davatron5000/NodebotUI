@@ -36,6 +36,8 @@
       
       var outValue = inValue * (this.max - this.min) + this.min;
       
+      var displayValue = outValue;
+      
       // If we have an easing function use it
       if (this.easing) {
         outValue = easing[this.easing](outValue);
@@ -48,7 +50,7 @@
       }
       
       // Update the browserControl
-      this._update( value );
+      this._update( displayValue );
     }
     
   };
